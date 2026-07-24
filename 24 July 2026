@@ -1,0 +1,39 @@
+class Solution {
+public:
+    int uniqueXorTriplets(vector<int>& nums) {
+        int mx = 2048;
+        vector<bool> present(mx, false);
+        
+        for (int x : nums)
+            present[x] = true;
+
+        vector<bool> two(mx, false);
+
+        for (int i = 0; i < mx; i++) {
+            if (!present[i])
+                continue;
+
+            for (int j = 0; j < mx; j++) {
+                if (present[j])
+                    two[i ^ j] = true;
+            }
+        }
+
+        vector<bool> ans(mx, false);
+
+        for (int i = 0; i < mx; i++) {
+            if (!two[i])
+                continue;
+
+            for (int x : nums)
+                ans[i ^ x] = true;
+        }
+
+        int count = 0;
+
+        for (bool x : ans)
+            count += x;
+
+        return count;
+    }
+};
