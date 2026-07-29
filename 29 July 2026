@@ -1,0 +1,92 @@
+constexpr long long LIMIT = 400000000;
+
+class Solution {
+public:
+
+    long long combination(long long n, long long r) {
+        if (n - r < r)
+            r = n - r;
+
+        long long result = 1;
+
+        for (int i = 1; i <= r; i++) {
+            result *= (n + 1 - i);
+            result /= i;
+
+            if (result >= LIMIT)
+                return LIMIT;
+        }
+
+        return result;
+    }
+
+    long long countPermutations(const array<int, 26>& freq) {
+        int total_ch = accumulate(freq.begin(), freq.end(), 0);
+        long long ways = 1;
+
+        for (int count : freq) {
+            if (count == 0)
+                continue;
+
+            ways *= combination(total_ch, count);
+            total_ch -= count;
+
+            if (ways >= LIMIT)
+                return LIMIT;
+        }
+
+        return ways;
+    }
+
+    bool first_hlf(span<char> half, int k) {
+        array<int, 26> freq{};
+
+        for (char ch : half)
+            freq[ch - 'a']++;
+
+        if (countPermutations(freq) <= k)
+            return false;
+
+        long long remaining = accumulate(freq.begin(), freq.end(), 0LL);
+
+        for (char& ch : half) {
+
+            long long total = countPermutations(freq);
+
+            for (int i = 0; i < 26; i++) {
+
+                if (freq[i] == 0)
+                    continue;
+
+                long long curr =
+                    (total == LIMIT)
+                        ? LIMIT
+                        : (total * 1LL * freq[i]) / remaining;
+
+                if (curr > k) {
+                    ch = char('a' + i);
+                    freq[i]--;
+                    break;
+                }
+
+                k -= curr;
+            }
+
+            remaining--;
+        }
+
+        return true;
+    }
+
+    string smallestPalindrome(string s, int k) {
+        int n = s.size();
+        int half_len = n / 2;
+
+        if (!first_hlf({s.begin(), s.begin() + half_len}, k - 1))
+            return "";
+
+        copy(s.begin(), s.begin() + half_len, s.rbegin());
+
+        return s;
+    }
+};
